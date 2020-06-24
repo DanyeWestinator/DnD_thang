@@ -1,0 +1,32 @@
+[
+	{
+		"title": "Merchant1.1",
+		"tags": "Merchant",
+		"body": "Welcome to Port Mosby! Enjoy your stay! [[Answer:Player2.1|Player2.1]] [[Answer:Player2.2|Player2.2]]",
+		"position": {
+			"x": 668,
+			"y": 237
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Player2.1",
+		"tags": "Norman",
+		"body": "Thanks, I will",
+		"position": {
+			"x": 446,
+			"y": 477
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Player2.2",
+		"tags": "Norman",
+		"body": "You can't tell me what to do",
+		"position": {
+			"x": 811,
+			"y": 470
+		},
+		"colorID": 0
+	}
+]

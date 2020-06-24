@@ -1,0 +1,52 @@
+[
+	{
+		"title": "Barkeep1.1",
+		"tags": "barkeep",
+		"body": "Welcome to the Sleeping Demon! What can I get ya? [[Answer:Player2.1|Player2.1]] [[Answer:Player2.2|Player2.2]]",
+		"position": {
+			"x": 625,
+			"y": -102
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Player2.1",
+		"tags": "Norman",
+		"body": "I would like your strongest drink, please and thank you [[Answer:Barkeep3.1|Barkeep3.1]]",
+		"position": {
+			"x": 431,
+			"y": 163
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Player2.2",
+		"tags": "Norman",
+		"body": "A bed would be absolutely lovely at the moment [[Answer:Barkeep3.2|Barkeep3.2]]",
+		"position": {
+			"x": 849,
+			"y": 165
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Barkeep3.1",
+		"tags": "barkeep",
+		"body": "I will warn you, it'll melt the shell off a garden snail",
+		"position": {
+			"x": 422,
+			"y": 412
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Barkeep3.2",
+		"tags": "barkeep",
+		"body": "You're in luck, we actually have a free bed",
+		"position": {
+			"x": 846,
+			"y": 416
+		},
+		"colorID": 0
+	}
+]

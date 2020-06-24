@@ -1,0 +1,32 @@
+[
+	{
+		"title": "Pirate1.1",
+		"tags": "Merchant",
+		"body": "yarrr what brings ye here m80 [[Answer:Player2.1|Player2.1]] [[Answer:Player2.2|Player2.2]]",
+		"position": {
+			"x": 668,
+			"y": 261
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Player2.1",
+		"tags": "Norman",
+		"body": "Why the clap of my cheeks, of course!",
+		"position": {
+			"x": 458,
+			"y": 460
+		},
+		"colorID": 0
+	},
+	{
+		"title": "Player2.2",
+		"tags": "Norman",
+		"body": "Just plunder and magic, wizard things",
+		"position": {
+			"x": 870,
+			"y": 472
+		},
+		"colorID": 0
+	}
+]
