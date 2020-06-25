@@ -6,7 +6,10 @@ using UnityEngine.UI;
 
 public class personalSpace : MonoBehaviour
 {
+    //speech bubble is the canvas
     public GameObject speechBubble;
+
+
     private Image picture;
     private Text speechText;
     public TextAsset lines;
@@ -18,6 +21,11 @@ public class personalSpace : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (speechBubble.GetComponent<Canvas>().worldCamera == null)
+        {
+            speechBubble.GetComponent<Canvas>().worldCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        }
+        
         linesList = lines.text.Split('\n').ToList();
         picture = speechBubble.GetComponentInChildren<Image>();
         speechText = speechBubble.GetComponentInChildren<Text>();
@@ -75,7 +83,6 @@ public class personalSpace : MonoBehaviour
         if (collision.tag == "Player")
         {
             fadeIn = false;
-            
         }
     }
     

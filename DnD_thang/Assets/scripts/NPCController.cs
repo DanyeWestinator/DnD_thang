@@ -49,10 +49,7 @@ public class NPCController : MonoBehaviour
             currentTime = 0f;
             rotate();
         }
-        if (Input.GetKey("e"))
-        {
-            //print("holding e");
-        }
+        
         
     }
     void rotate()
@@ -67,7 +64,7 @@ public class NPCController : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collision)
     {
         displayCanvas.SetActive(true);
-        if (Input.GetKey("e"))// && canTalk == true
+        if (Input.GetAxis("Interact") != 0)// && canTalk == true
         {
             dialogueCanvas.gameObject.SetActive(true);
             Time.timeScale = 0;
