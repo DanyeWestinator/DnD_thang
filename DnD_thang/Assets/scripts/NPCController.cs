@@ -19,7 +19,6 @@ public class NPCController : MonoBehaviour
     public float rotateTime = 2f;
     private float currentTime = 0f;
     public float conversationBuffer = 5f;
-    private bool canTalk = true;
 
     public GameObject dialogueCanvas;
 
@@ -64,11 +63,10 @@ public class NPCController : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collision)
     {
         displayCanvas.SetActive(true);
-        if (Input.GetAxis("Interact") != 0)// && canTalk == true
+        if (Input.GetAxis("Interact") != 0)
         {
             dialogueCanvas.gameObject.SetActive(true);
             Time.timeScale = 0;
-            StartCoroutine(resetConversation(conversationBuffer));
         }
         
     }
@@ -78,14 +76,4 @@ public class NPCController : MonoBehaviour
         displayCanvas.SetActive(false);
     }
 
-    IEnumerator resetConversation(float seconds)
-    {
-        // Do stuff
-        canTalk = false;
-
-        yield return new WaitForSeconds(seconds);
-
-        canTalk = true;
-        // Do other stuff
-    }
 }

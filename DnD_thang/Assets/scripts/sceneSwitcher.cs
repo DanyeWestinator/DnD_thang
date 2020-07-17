@@ -7,7 +7,6 @@ using System.Linq;
 public class sceneSwitcher : MonoBehaviour
 {
     public string sceneToSwitchTo;
-    private bool entered = false;
     public GameObject player;
     public GameObject promptCanvas;
     private Vector3 position;
@@ -25,10 +24,6 @@ public class sceneSwitcher : MonoBehaviour
         promptCanvas.SetActive(true);
         if (Input.GetKey("e"))
         {
-            //position = player.transform.position;
-            //print(position);
-            entered = true;
-            
             SceneManager.LoadScene(sceneToSwitchTo);
             StartCoroutine(move());
             

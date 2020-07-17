@@ -7,7 +7,7 @@ using static System.Math;
 
 public class PlayerMove : MonoBehaviour
 {
-    public Rigidbody2D rb;
+    private Rigidbody2D rb;
     public float speed = 5f;
     public float sensitivity = .1f;
 
@@ -25,6 +25,7 @@ public class PlayerMove : MonoBehaviour
 
     private void Start()
     {
+        rb = gameObject.GetComponent<Rigidbody2D>();
         currentSprite = downSprites[0];
         currentList = downSprites;
         updateSprite();
