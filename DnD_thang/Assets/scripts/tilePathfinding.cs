@@ -53,11 +53,6 @@ public class tilePathfinding : MonoBehaviour
         valid = recursiveFinder(0, start);
         foreach (Vector3Int item in valid)
         {
-            //Vector3Int newPos = item + new Vector3Int(0, 0, 1);
-            //grid.SetTile(newPos, grid.GetTile(item));
-            //grid.SetTileFlags(newPos, TileFlags.None);
-            //grid.SetColor(newPos, visitedColor);
-            //grid.SetTileFlags(item, TileFlags.None);
             grid.SetColor(item, visitedColor);
         }
     }
@@ -92,6 +87,7 @@ public class tilePathfinding : MonoBehaviour
                 }
                 if (environment.HasTile(current) == false && visited[current] == false)
                 {
+                    //visited[current] = true;
                     valid.Add(current);
                 }
                 
@@ -110,7 +106,11 @@ public class tilePathfinding : MonoBehaviour
         valid = findValid(start);
         foreach (Vector3Int current in findValid(start))
         {
-            valid.UnionWith(recursiveFinder(depth + 1, current));
+            //if (visited[current] == true)
+            {
+                valid.UnionWith(recursiveFinder(depth + 1, current));
+
+            }
         }
 
         return valid;
