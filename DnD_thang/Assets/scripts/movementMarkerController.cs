@@ -26,11 +26,13 @@ public class movementMarkerController : MonoBehaviour
     public bool displayGridAtStart = true;
 
     public turnManager turnManager;
+    private bool hasStarted = false;
 
 
     // Start is called before the first frame update
     public void Start()
     {
+        hasStarted = true;
         setNewPath = true;
         //sets the tilepathfinding component to the one in the player gameobject
         tpf = player.GetComponent<tilePathfinding>();
@@ -38,30 +40,25 @@ public class movementMarkerController : MonoBehaviour
         transform.position = player.transform.position + new Vector3(0.5f, -0.5f, -1f);
         if (displayGridAtStart == true)
         {
-            tpf.markValid(Vector3Int.RoundToInt(player.transform.position));
+            //tpf.markValid(Vector3Int.RoundToInt(player.transform.position));
         }
     }
 
     public void setMove(bool newStatus)
     {
+        if (hasStarted == false) { Start(); }
         canMove = newStatus;
         
         if (canMove == true)
         {
             gameObject.transform.GetChild(0).gameObject.SetActive(true);
-            if (tpf != null)
-            {
-                tpf.markValid(Vector3Int.RoundToInt(player.transform.position));
-            }
+            tpf.markValid(Vector3Int.RoundToInt(player.transform.position));
                 
         }
         else
         {
-            if (tpf != null)
-            {
-                tpf.resetVisited();
+            tpf.resetVisited();
 
-            }
             gameObject.transform.GetChild(0).gameObject.SetActive(false);
         }
         

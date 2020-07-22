@@ -6,29 +6,43 @@ using System.Linq;
 
 public class tilePathfinding : MonoBehaviour
 {
-
+    
     public Tilemap grid;
     public Tilemap environment;
+
+    private HashSet<Vector3Int> envTiles = new HashSet<Vector3Int>();
 
     private Vector3Int pos;
 
     public int maxDepth = 5;
 
     private Color originalColor;
-    private HashSet<Vector3Int> valid;
+    private HashSet<Vector3Int> valid = new HashSet<Vector3Int>();
 
     public Color visitedColor = Color.blue;
 
-    private Dictionary<Vector3Int, bool> visited = new Dictionary<Vector3Int, bool>();
+    //private Dictionary<Vector3Int, bool> visited = new Dictionary<Vector3Int, bool>();
+    HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+
+    private bool hasStarted = false;
+    int recursiveCalls = 0;
+    
     // Start is called before the first frame update
     void Start()
     {
+        hasStarted = true;
         originalColor = grid.GetColor(Vector3Int.zero);
         for (int i = - (grid.size.x); i < grid.size.x; i++)
         {
             for (int j = - grid.size.y; j < grid.size.y; j++)
             {
-                grid.SetTileFlags(new Vector3Int(i, j, 0), TileFlags.None);
+                Vector3Int current = new Vector3Int(i, j, 0);
+                grid.SetTileFlags(current, TileFlags.None);
+                //visited.Add(current, false);
+                if (environment.HasTile(current))
+                {
+                    envTiles.Add(current);
+                }
             }
         }
     }
@@ -36,9 +50,10 @@ public class tilePathfinding : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey("r"))
+        if (Input.GetKeyDown("r"))
         {
             markValid(Vector3Int.RoundToInt(transform.position));
+            print(recursiveCalls);
         }
 
         if (Input.GetKey("t"))
@@ -49,6 +64,11 @@ public class tilePathfinding : MonoBehaviour
     
     public void markValid(Vector3Int start)
     {
+        if (hasStarted == false)
+        {
+            Start();
+        }
+        start.x += 1;
         resetVisited();
         valid = recursiveFinder(0, start);
         foreach (Vector3Int item in valid)
@@ -59,17 +79,14 @@ public class tilePathfinding : MonoBehaviour
 
     public void resetVisited()
     {
-        for (int i = 0; i < visited.Count; i++)
-        {
-            Vector3Int item = visited.ElementAt(i).Key;
-            visited[item] = false;
-        }
-        foreach (Vector3Int item in visited.Keys)
+        foreach (Vector3Int item in valid)
         {
             //Vector3Int newPos = item + new Vector3Int(0, 0, 1);
             //grid.SetColor(newPos, Color.clear);
             grid.SetColor(item, originalColor);
         }
+        recursiveCalls = 0;
+        visited = new HashSet<Vector3Int>();
 
     }
 
@@ -81,37 +98,37 @@ public class tilePathfinding : MonoBehaviour
             for (int j = -1; j < 2; j++)
             {
                 Vector3Int current = new Vector3Int(start.x + i, start.y + j, 0);
-                if (visited.ContainsKey(current) == false)
+                if (envTiles.Contains(current) == false && current != start && visited.Contains(current) == false)
                 {
-                    visited.Add(current, false);
-                }
-                if (environment.HasTile(current) == false && visited[current] == false)
-                {
-                    //visited[current] = true;
                     valid.Add(current);
                 }
-                
             }
         }
         return valid;
     }
 
+
     HashSet<Vector3Int> recursiveFinder(int depth, Vector3Int start)
     {
+        recursiveCalls++;
+        start.z = 0;
         HashSet<Vector3Int> valid = new HashSet<Vector3Int>();
+        if (hasStarted == false) { Start(); }
+        
         if (depth >= maxDepth)
         {
             return valid;
         }
+        
+
         valid = findValid(start);
+
         foreach (Vector3Int current in findValid(start))
         {
-            //if (visited[current] == true)
-            {
-                valid.UnionWith(recursiveFinder(depth + 1, current));
-
-            }
+            valid.UnionWith(recursiveFinder(depth + 1, current));
         }
+
+        visited.Add(start);
 
         return valid;
     }

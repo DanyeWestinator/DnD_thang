@@ -56,6 +56,7 @@ public class turnManager : MonoBehaviour
         switch (playerActions[currentAction])
         {
             case "move":
+                print(movementMarker.setNewPath);
                 movementMarker.setMove(movementMarker.setNewPath);
                 playerActionsTaken["move"] = movementMarker.setNewPath;
                 break;
