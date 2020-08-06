@@ -1,0 +1,4 @@
+hasDrank 0
+test2 3
+test3 5
+reee 100

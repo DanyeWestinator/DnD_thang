@@ -9,8 +9,9 @@ public class turnManager : MonoBehaviour
 
     public GameObject displayCanvas;
     public movementMarkerController movementMarker;
+    public combatSelector combatSelector;
 
-    private bool isPlayerTurn = true;
+    //private bool isPlayerTurn = true;
 
 
     public List<string> playerActions = new List<string> { "move", "attack" };
@@ -56,12 +57,17 @@ public class turnManager : MonoBehaviour
         switch (playerActions[currentAction])
         {
             case "move":
-                print(movementMarker.setNewPath);
-                movementMarker.setMove(movementMarker.setNewPath);
-                playerActionsTaken["move"] = movementMarker.setNewPath;
+                combatSelector.setCanTarget(false);
+                movementMarker.setGrid(true);
+                playerActionsTaken["move"] = movementMarker.getMove();
+                break;
+            case "attack":
+                movementMarker.setGrid(false);
+                combatSelector.setCanTarget(true);
                 break;
             default:
-                movementMarker.setMove(false);
+                movementMarker.setGrid(false);
+                combatSelector.setCanTarget(false);
                 break;
         }
     }

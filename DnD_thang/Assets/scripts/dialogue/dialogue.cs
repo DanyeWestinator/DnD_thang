@@ -5,6 +5,7 @@ using SimpleJSON;
 using System.Text.RegularExpressions;
 using System.Linq;
 using UnityEngine.UI;
+using System;
 
 
 public class Node
@@ -16,6 +17,7 @@ public class Node
 
     private Dictionary<string, string> nextNodes = new Dictionary<string, string>();
     private List<string> functions = new List<string>();
+    private List<string> toAdd = new List<string>();
 
     public Node(string title, string speaker, string text)
     {
@@ -41,8 +43,18 @@ public class Node
             temp = temp.Replace("%%%", "");
             functions.Add(temp);
         }
+        string pattern3 = @"&&&[a-zA-Z0-9 ]*&&&";
+        next = Regex.Matches(text, pattern3);
+        foreach (Match x in next)
+        {
+            string temp = x.Value;
+            temp = temp.Replace("&", "");
+            temp = temp.Replace("&&&", "");
+            toAdd.Add(temp);
+        }
         this.text = Regex.Replace(text, pattern, "").Trim();
         this.text = Regex.Replace(this.text, pattern2, "");
+        this.text = Regex.Replace(this.text, pattern3, "");
     }
 
     public void updateDict(string next, string text)
@@ -84,6 +96,7 @@ public class Node
     public string getTitle() { return sourceTitle; }
     public bool hasChildren() { return children; }
     public List<string> getFunctions() { return functions; }
+    public List<string> getToAdd() { return toAdd; }
     public List<string> getResponseTitles() { return nextNodes.Keys.ToList(); }
 
     public List<string> getResponses()
@@ -116,9 +129,6 @@ public class dialogue : MonoBehaviour
     private Sprite speakerSprite;
     public Image speakerImage;
 
-    //Dane needs to stop hardcoding things
-    public GameObject firstEnemy;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -127,8 +137,6 @@ public class dialogue : MonoBehaviour
         if (printList)
         {
             print(currentNode.ToString());
-            //print(transform.root);
-           // print(this.gameObject);
         }
         
         updateDisplay();
@@ -137,56 +145,89 @@ public class dialogue : MonoBehaviour
 
     void updateDisplay()
     {
+        foreach (var button in responseButtons)
+        {
+            button.gameObject.SetActive(false);
+        }
         displayText.text = currentNode.getText();
         speakerText.text = "Speaking:\n<b>" + currentNode.getSpeaker() + "</b>";
         speakerSprite = Resources.Load<Sprite>(currentNode.getSpeaker());
         speakerImage.sprite = speakerSprite;
-        for (int i = 0; i < 4; i++)
+        
+        List<string> responses = getValidResponses();
+        if (responses.Count == 0)
         {
-            var responses = currentNode.getResponses();
-            responseButtons[i].gameObject.SetActive(responses.Count > i);
-            if (i < responses.Count)
+            responseButtons[4].gameObject.SetActive(true);
+        }
+        for (int i = 0; i < responses.Count; i++)
+        {
+            responseButtons[i].gameObject.SetActive(true);
+            
+            responseButtons[i].GetComponentInChildren<Text>().text = responses[i];
+            if (responses.Count == 1)
             {
-                responseButtons[i].GetComponentInChildren<Text>().text = responses[i];
-
-
-                //PLAYEST ME!!!!!!
-                //if (nodes.Find(next => next.getTitle() == currentNode.getResponseTitles()[i]).getSpeaker() != "Player")
-                if (responses.Count == 1)
-                {
-                    responseButtons[i].GetComponentInChildren<Text>().text = "Continue";
-                }
-            }
-            if (responses.Count == 0)
-            {
-                responseButtons[4].gameObject.SetActive(true);
+                responseButtons[i].GetComponentInChildren<Text>().text = "Continue";
             }
 
         }
     }
 
+    private List<string> getValidResponses()
+    {
+        List<string> responses = new List<string>();
+        foreach (string s in currentNode.getResponses())
+        {
+            bool isValid = true;
+            Node next = getNextNode(s);
+            foreach (string functions in next.getFunctions())
+            {
+                int value = Int32.Parse(functions.Split(' ')[1]);
+                string name = functions.Split(' ')[0];
+                if (value > dialogueVariables.Instance.tryGetValue(name))
+                {
+                    isValid = false;
+                }
+            }
+            if (isValid)
+                responses.Add(s);
+        }
+        return responses;
+    }
+    
+
+    private Node getNextNode(string s)
+    {
+        return nodes.Find(next => next.getText() == s);
+    }
+
     public void getButtonPressed(int i)
     {
         if (printList) { print(currentNode.ToString()); }
+
         string nextTitle = currentNode.getResponseTitles()[i];
         currentNode = nodes.Find(next => next.getTitle() == nextTitle);
-        functions();
+        foreach (string s in currentNode.getToAdd())
+        {
+            string[] vars = s.Split(' ');
+            dialogueVariables.Instance.updateValue(vars[0], Int32.Parse(vars[1]));
+        }
+        if (currentNode.getTitle().StartsWith("Player"))
+        {
+            nextTitle = currentNode.getResponseTitles()[0];
+            currentNode = nodes.Find(next => next.getTitle() == nextTitle);
+        }
         updateDisplay();
     }
     public void closeDialogue()
     {
         responseButtons[0].gameObject.transform.root.gameObject.SetActive(false);
-        Time.timeScale = 1f;
+        PlayerMove.canMove = true;
         currentNode = originalNode;
         updateDisplay();
     }
 
     void functions()
     {
-        if (currentNode.getFunctions().Contains("lowerScore 1000"))
-        {
-            
-        }
         if (currentNode.getFunctions().Contains("credits"))
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene("credits");

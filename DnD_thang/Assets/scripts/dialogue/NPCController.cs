@@ -2,17 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class CoroutineUtil
-{
-    public static IEnumerator WaitForRealSeconds(float time)
-    {
-        float start = Time.realtimeSinceStartup;
-        while (Time.realtimeSinceStartup < start + time)
-        {
-            yield return null;
-        }
-    }
-}
 
 public class NPCController : MonoBehaviour
 {
@@ -23,6 +12,8 @@ public class NPCController : MonoBehaviour
     public GameObject dialogueCanvas;
 
     public GameObject displayCanvas;
+    private bool inBox = false;
+    public bool canRotate = false;
 
     public List<Sprite> upSprites = new List<Sprite>();
     public List<Sprite> downSprites = new List<Sprite>();
@@ -43,13 +34,19 @@ public class NPCController : MonoBehaviour
     void Update()
     {
         currentTime += Time.deltaTime;
-        if (currentTime >= rotateTime)
+        if (canRotate && currentTime >= rotateTime)
         {
             currentTime = 0f;
             rotate();
         }
-        
-        
+        if (inBox == true && Input.GetAxis("Interact") != 0)
+        {
+            dialogueCanvas.gameObject.SetActive(true);
+            PlayerMove.canMove = false;
+            //Time.timeScale = 0;
+        }
+
+
     }
     void rotate()
     {
@@ -60,19 +57,15 @@ public class NPCController : MonoBehaviour
 
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         displayCanvas.SetActive(true);
-        if (Input.GetAxis("Interact") != 0)
-        {
-            dialogueCanvas.gameObject.SetActive(true);
-            Time.timeScale = 0;
-        }
-        
+        inBox = true;
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        inBox = false;
         displayCanvas.SetActive(false);
     }
 

@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/combatTest.unity
+- path: Assets/Scenes/tavern01.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

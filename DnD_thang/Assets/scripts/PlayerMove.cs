@@ -22,6 +22,7 @@ public class PlayerMove : MonoBehaviour
     public List<Sprite> downSprites = new List<Sprite>();
     public List<Sprite> leftSprites = new List<Sprite>();
     public List<Sprite> rightSprites = new List<Sprite>();
+    public static bool canMove = true;
 
     private void Start()
     {
@@ -34,9 +35,11 @@ public class PlayerMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+        rb.velocity = Vector3.zero;
+        if (Abs(Input.GetAxis("Horizontal")) >= sensitivity || Abs(Input.GetAxis("Vertical")) >= sensitivity)
         {
-            Move();
+            if (canMove)
+                Move();
         }
         
     }
@@ -48,7 +51,6 @@ public class PlayerMove : MonoBehaviour
         float horizMove = Input.GetAxis("Horizontal") * speed;
         float hAbs = Abs(horizMove);
         float vAbs = Abs(vertMove);
-        
 
         if (hAbs > vAbs)
         {

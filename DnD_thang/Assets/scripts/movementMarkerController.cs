@@ -4,104 +4,127 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using static System.Math;
 
+
 public class movementMarkerController : MonoBehaviour
 {
     public float moveTime = .2f;    
     private float currentTime = 0f;
     
-    public float sensitivity = 0.2f;
     private float currentDistance;
     
     public Tilemap grid;
     public GameObject player;
 
+
     //hash set chosen for constant time searching (since contains is used a lot)
     private HashSet<Vector3> valid = new HashSet<Vector3>();
 
     private tilePathfinding tpf;
-    public bool setNewPath = true;
 
-    private bool canMove = true;
-
-    public bool displayGridAtStart = true;
-
-    public turnManager turnManager;
     private bool hasStarted = false;
 
+    public turnManager turnManager;
+
+    private bool displayGrid = false;
+    private bool canMove = true;
+
+
+    //for the love of god refactor the code
 
     // Start is called before the first frame update
     public void Start()
     {
+        if (hasStarted == true) { return; }
+        
         hasStarted = true;
-        setNewPath = true;
+        canMove = true;
+
         //sets the tilepathfinding component to the one in the player gameobject
         tpf = player.GetComponent<tilePathfinding>();
+        tpf.Start();
         currentTime = moveTime;
         transform.position = player.transform.position + new Vector3(0.5f, -0.5f, -1f);
-        if (displayGridAtStart == true)
-        {
-            //tpf.markValid(Vector3Int.RoundToInt(player.transform.position));
-        }
+        
     }
 
-    public void setMove(bool newStatus)
+
+    public void setGrid(bool toSet)
     {
         if (hasStarted == false) { Start(); }
-        canMove = newStatus;
-        
-        if (canMove == true)
+        displayGrid = toSet;
+        gameObject.transform.GetChild(0).gameObject.SetActive(toSet);
+
+        if (toSet == true)
         {
-            gameObject.transform.GetChild(0).gameObject.SetActive(true);
-            tpf.markValid(Vector3Int.RoundToInt(player.transform.position));
-                
+            Vector3 pos = player.transform.position;
+            pos.y -= 0.1f;
+            pos.x += 0.0f;
+            tpf.markValid(Vector3Int.RoundToInt(pos));
         }
         else
         {
             tpf.resetVisited();
-
-            gameObject.transform.GetChild(0).gameObject.SetActive(false);
         }
-        
     }
 
-    public bool getMove() { return canMove && setNewPath; }
+    public bool getMove()
+    {
+        if (hasStarted == false) { Start(); }
+        return (tpf.distanceLeft > 0 && canMove);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (canMove)
+        if (canMove && tpf.distanceLeft > 0)
         {
             currentTime += Time.deltaTime;
             //needs to check input to make sure that you don't redraw the blue squares every frame
 
-            if ((Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0) && currentTime >= moveTime && setNewPath == true)
+            if ((Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0) && currentTime >= moveTime && displayGrid == true)
             {
                 moveMarker();
                 currentTime = 0f;
             }
 
-            if (Input.GetAxis("Interact") != 0)
+            if (Input.GetAxis("Interact") != 0 && displayGrid == true)
             {
-                setNewPath = false;
+                //print(tpf.distanceLeft);
+                tpf.distanceLeft -= tpf.distanceToStart(Vector3Int.RoundToInt(transform.position), 0);
+                displayGrid = false;
                 //turns off the players collider
                 player.GetComponent<CapsuleCollider2D>().enabled = false;
-                gameObject.GetComponentInChildren<SpriteRenderer>().enabled = false;
+                transform.GetChild(0).gameObject.SetActive(false);
                 player.GetComponent<Pathfinding.AIPath>().canMove = true;
                 player.GetComponent<Pathfinding.AIDestinationSetter>().target = transform.GetChild(0);
                 tpf.resetVisited();
+                Vector3Int pos = Vector3Int.RoundToInt(transform.position);
+                //pos.x -= 1;
+                //print(tpf.distanceToStart(pos, 0));
+                //print(tpf.distanceLeft);
             }
 
-            //TODO
 
-            //turn colliders on and off as needed to avoid getting stuck
-            if (setNewPath == false && player.GetComponent<Pathfinding.AIPath>().reachedDestination)
+            if (displayGrid == false && player.GetComponent<Pathfinding.AIPath>().reachedDestination)
             {
-                canMove = false;
+                Vector3 pos = player.transform.position;
+                //print("" + pos.x + " " + pos.y);
+                pos += new Vector3(0.5f, 0.5f, 0);
+                pos = Vector3Int.RoundToInt(pos);
+                pos -= new Vector3(0.5f, 0.5f);
+                //canMove = false;
+                //print("" + pos.x + " " + pos.y);
+                player.transform.position = pos;
                 player.GetComponent<CapsuleCollider2D>().enabled = true;
-                turnManager.markX("move");
+                
                 
                 player.GetComponent<Pathfinding.AIPath>().canMove = false;
-                //player.GetComponent<tilePathfinding>().markValid(Vector3Int.RoundToInt(player.transform.position));
+            }
+
+            if (tpf.distanceLeft <= 0)
+            {
+                turnManager.markX("move");
+                canMove = false;
             }
         }
        
@@ -109,13 +132,12 @@ public class movementMarkerController : MonoBehaviour
 
     public void Reset()
     {
-        setNewPath = true;
-        //gameObject.GetComponentInChildren<SpriteRenderer>().enabled = true;
+        canMove = true;
+        tpf.distanceLeft = tpf.maxDepth - 1;
     }
 
     void moveMarker()
     {
-        player.GetComponent<tilePathfinding>().markValid(Vector3Int.RoundToInt(player.transform.position));
         //gets the direction that the player has inputted
         Vector3 direction = new Vector3(Sign(Input.GetAxis("Horizontal")), Sign(Input.GetAxis("Vertical")), 0f);
         Vector3 tryMove = transform.position + direction;
